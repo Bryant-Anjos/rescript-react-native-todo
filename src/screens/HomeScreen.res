@@ -4,7 +4,7 @@ open Typography
 module Styles = {
   open Style
 
-  let container = style(~flex=1.0, ~paddingVertical=30.->dp, ~paddingHorizontal=15.->dp, ())
+  let container = style(~flex=1.0, ~paddingTop=30.->dp, ~paddingHorizontal=15.->dp, ())
   let row = style(~flexDirection=#row, ~alignItems=#center, ~justifyContent=#center, ())
   let title = textStyle(~alignSelf=#center, ~marginVertical=5.->dp, ~fontWeight=#bold, ())
   let input = style(~flex=1., ())
@@ -46,15 +46,17 @@ let make = (~navigation as _, ~route as _) => {
     setTodos(_ => todos->Belt.Array.map(item => item.id == id ? updatedTodo : item))
   }
 
-  <TouchableWithoutFeedback onPress={_ => Keyboard.dismiss()}>
-    <SafeAreaView style=Styles.container>
-      <Txt fontSize=#xl style=Styles.title> String("Todos") </Txt>
-      <View style=Styles.row>
-        <Paper.TextInput
-          mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} style=Styles.input
-        />
-        <Paper.IconButton icon={Paper.Icon.name("plus")} onPress={_ => createTodo()} />
-      </View>
+  <SafeAreaView style=Styles.container>
+    <Txt fontSize=#xl style=Styles.title> String("Todos") </Txt>
+    <View style=Styles.row>
+      <Paper.TextInput
+        mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} style=Styles.input
+      />
+      <Paper.IconButton
+        icon={Paper.Icon.name("plus")} color=Color.blue onPress={_ => createTodo()}
+      />
+    </View>
+    <ScrollView showsVerticalScrollIndicator=false>
       {switch todos->Belt.Array.length {
       | 0 => <Txt style=Styles.textInfo> String("No todo created.") </Txt>
       | _ =>
@@ -69,6 +71,6 @@ let make = (~navigation as _, ~route as _) => {
         )
         ->React.array
       }}
-    </SafeAreaView>
-  </TouchableWithoutFeedback>
+    </ScrollView>
+  </SafeAreaView>
 }

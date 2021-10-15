@@ -25,8 +25,10 @@ let make = (~todo as t, ~delete, ~update) => {
   }
 
   let confirmUpdate = () => {
-    update(todo)
-    setIsUpdate(_ => false)
+    if todo != "" {
+      update(todo)
+      setIsUpdate(_ => false)
+    }
   }
 
   <View style=Styles.row>
@@ -35,14 +37,20 @@ let make = (~todo as t, ~delete, ~update) => {
         <Paper.TextInput
           mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} style=Styles.stretch
         />
-        <Paper.IconButton icon={Paper.Icon.name("check")} onPress={_ => confirmUpdate()} />
-        <Paper.IconButton icon={Paper.Icon.name("close")} onPress={_ => cancelUpdate()} />
+        <Paper.IconButton
+          icon={Paper.Icon.name("check")} color=Color.green onPress={_ => confirmUpdate()}
+        />
+        <Paper.IconButton
+          icon={Paper.Icon.name("close")} color=Color.red onPress={_ => cancelUpdate()}
+        />
       </>
     | false => <>
         <Txt fontSize=#lg style=Styles.stretch> String(t) </Txt>
-        <Paper.IconButton icon={Paper.Icon.name("pencil")} onPress={_ => setIsUpdate(_ => true)} />
+        <Paper.IconButton
+          icon={Paper.Icon.name("pencil")} color=Color.blue onPress={_ => setIsUpdate(_ => true)}
+        />
+        <Paper.IconButton icon={Paper.Icon.name("delete")} color=Color.red onPress=delete />
       </>
     }}
-    <Paper.IconButton icon={Paper.Icon.name("delete")} onPress=delete />
   </View>
 }
