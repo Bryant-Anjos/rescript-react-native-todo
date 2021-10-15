@@ -10,7 +10,6 @@ module Styles = {
     ~alignItems=#center,
     ~justifyContent=#center,
     ~paddingVertical=2.->dp,
-    ~paddingHorizontal=10.->dp,
     (),
   )
 }
@@ -33,12 +32,14 @@ let make = (~todo as t, ~delete, ~update) => {
   <View style=Styles.row>
     {switch isUpdate {
     | true => <>
-        <Paper.TextInput mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} />
+        <Paper.TextInput
+          mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} style=Styles.stretch
+        />
         <Paper.IconButton icon={Paper.Icon.name("check")} onPress={_ => confirmUpdate()} />
         <Paper.IconButton icon={Paper.Icon.name("close")} onPress={_ => cancelUpdate()} />
       </>
     | false => <>
-        <Txt style=Styles.stretch> String(t) </Txt>
+        <Txt fontSize=#lg style=Styles.stretch> String(t) </Txt>
         <Paper.IconButton icon={Paper.Icon.name("pencil")} onPress={_ => setIsUpdate(_ => true)} />
       </>
     }}

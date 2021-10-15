@@ -1,11 +1,14 @@
 open ReactNative
+open Typography
 
 module Styles = {
   open Style
 
-  let container = style(~flex=1.0, ())
-  let text = textStyle(~color=Color.teal, ())
+  let container = style(~flex=1.0, ~paddingVertical=30.->dp, ~paddingHorizontal=15.->dp, ())
   let row = style(~flexDirection=#row, ~alignItems=#center, ~justifyContent=#center, ())
+  let title = textStyle(~alignSelf=#center, ~marginVertical=5.->dp, ~fontWeight=#bold, ())
+  let input = style(~flex=1., ())
+  let textInfo = textStyle(~marginVertical=15.->dp, ())
 }
 
 type todo = {
@@ -45,20 +48,27 @@ let make = (~navigation as _, ~route as _) => {
 
   <TouchableWithoutFeedback onPress={_ => Keyboard.dismiss()}>
     <SafeAreaView style=Styles.container>
+      <Txt fontSize=#xl style=Styles.title> String("Todos") </Txt>
       <View style=Styles.row>
-        <Paper.TextInput mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} />
+        <Paper.TextInput
+          mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} style=Styles.input
+        />
         <Paper.IconButton icon={Paper.Icon.name("plus")} onPress={_ => createTodo()} />
       </View>
-      {todos
-      ->Belt.Array.map(value =>
-        <Todo
-          key={value.id}
-          todo=value.value
-          delete={_ => deleteTodo(value.id)}
-          update={text => updateTodo(text, value.id)}
-        />
-      )
-      ->React.array}
+      {switch todos->Belt.Array.length {
+      | 0 => <Txt style=Styles.textInfo> String("No todo created.") </Txt>
+      | _ =>
+        todos
+        ->Belt.Array.map(value =>
+          <Todo
+            key={value.id}
+            todo=value.value
+            delete={_ => deleteTodo(value.id)}
+            update={text => updateTodo(text, value.id)}
+          />
+        )
+        ->React.array
+      }}
     </SafeAreaView>
   </TouchableWithoutFeedback>
 }
