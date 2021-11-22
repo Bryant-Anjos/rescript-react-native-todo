@@ -18,8 +18,18 @@ type todo = {
 
 @react.component
 let make = (~navigation as _, ~route as _) => {
+  let inputRef = React.useRef(Js.Nullable.null)
+
   let (todo, setTodo) = React.useState(_ => "")
   let (todos, setTodos) = React.useState(_ => [])
+
+  let title = React.useMemo1(_ => {
+    "Todos" ++
+    switch todos {
+    | [] => ""
+    | _ => " - " ++ todos->Belt.Array.length->Belt.Int.toString
+    }
+  }, [todos])
 
   let createTodo = () => {
     if todo != "" {
@@ -27,10 +37,13 @@ let make = (~navigation as _, ~route as _) => {
         id: UUID.v4(),
         value: todo,
       }
-      Js.log(newTodo)
 
       setTodo(_ => "")
       setTodos(_ => [newTodo]->Belt.Array.concat(todos))
+      inputRef.current
+      ->Js.Nullable.toOption
+      ->Belt.Option.map(input => input->TextInput.focus)
+      ->ignore
     }
   }
 
@@ -43,22 +56,34 @@ let make = (~navigation as _, ~route as _) => {
       id: id,
       value: value,
     }
-    setTodos(_ => todos->Belt.Array.map(item => item.id == id ? updatedTodo : item))
+    setTodos(_ =>
+      todos->Belt.Array.map(item =>
+        switch item.id {
+        | itemId if itemId == id => updatedTodo
+        | _ => item
+        }
+      )
+    )
   }
 
   <SafeAreaView style=Styles.container>
-    <Txt fontSize=#xl style=Styles.title> String("Todos") </Txt>
+    <Txt fontSize=#xl style=Styles.title> String(title) </Txt>
     <View style=Styles.row>
       <Paper.TextInput
-        mode=#outlined value=todo onChangeText={text => setTodo(_ => text)} style=Styles.input
+        ref={ref => inputRef.current = ref}
+        mode=#outlined
+        value=todo
+        onChangeText={text => setTodo(_ => text)}
+        onSubmitEditing=createTodo
+        style=Styles.input
       />
       <Paper.IconButton
         icon={Paper.Icon.name("plus")} color=Color.blue onPress={_ => createTodo()}
       />
     </View>
     <ScrollView showsVerticalScrollIndicator=false>
-      {switch todos->Belt.Array.length {
-      | 0 => <Txt style=Styles.textInfo> String("No todo created.") </Txt>
+      {switch todos {
+      | [] => <Txt style=Styles.textInfo> String("No todo created.") </Txt>
       | _ =>
         todos
         ->Belt.Array.map(value =>
